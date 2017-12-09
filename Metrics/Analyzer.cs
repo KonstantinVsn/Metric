@@ -11,27 +11,37 @@ namespace Metrics
     public class Analyzer
     {
         private string[] filesPaths;
-        private int physicLineCount = 0;
+        private int codeLineCount = 0;
         private int emptyLineCount = 0;
         private int commentedLineCount = 0;
         private int logicLineCount = 0;
+        private int phyzicalLineCount = 0;
+        
         public Analyzer(string[] filesArray)
         {
             filesPaths = filesArray;
             CountLines();
         }
 
-        private int CountLines()
+        private void CountLines()
         {
             foreach(var path in filesPaths)
             {
-                physicLineCount += File.ReadLines(path).Count();
+                codeLineCount += File.ReadLines(path).Count();
                 emptyLineCount += GetEmptyLinesCount(path);
                 commentedLineCount += GetCommentedLinesCount(path);
+                logicLineCount += GetLogicLinesCount(path);
+                phyzicalLineCount = codeLineCount - emptyLineCount - commentedLineCount;
                 //var wordsArr = GetWords(text);
             }
-            Console.ReadKey();
-            return 0;
+            Console.WriteLine("Количество файлов - " + filesPaths.Length);
+            Console.WriteLine("==========================================");
+            Console.WriteLine("кода строки - " + codeLineCount);
+            Console.WriteLine("физические строки - " + phyzicalLineCount);
+            Console.WriteLine("логические строки - " + logicLineCount);
+            Console.WriteLine("пустые строки - " + emptyLineCount);
+            Console.WriteLine("с коментариями строки - " + commentedLineCount);
+            Console.WriteLine("уровень коментированости - " + ((double)commentedLineCount / codeLineCount).ToString("0.00"));
         }
 
         static string[] GetWords(string input)
@@ -59,7 +69,7 @@ namespace Metrics
 
         private int GetEmptyLinesCount(string path)
         {
-            return File.ReadLines(path).Count(line => line.Trim().Length == 0);
+            return File.ReadLines(path).Count(line => line.Trim().Length == 0 || line.Length ==0);
         }
 
         private int GetCommentedLinesCount(string path)
@@ -93,9 +103,13 @@ namespace Metrics
         private int GetLogicLinesCount(string path)
         {
             var lines = File.ReadLines(path).ToList();
-            
-
-            return 0;
+            var count = lines.Count(x => Resources.logicWords.Any(x.Contains));
+            var countMinus = lines.Count(x => x.Contains("};"));
+            var countGoto = lines.Count(x => x.Contains("goto"));
+            var countClass = lines.Count(x => x.Contains("class"));
+            var countStruct = lines.Count(x => x.Contains("struct"));
+            var countFor = lines.Count(x => x.Contains("for"));
+            return count-countMinus- countGoto- countClass- countStruct- countFor; 
         }
 
     }

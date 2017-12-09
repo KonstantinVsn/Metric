@@ -14,6 +14,7 @@ namespace Metrics
             string[] fileArray = Directory.GetFiles(@"E:\Konstantiv\DefCoins", "*.cs", SearchOption.AllDirectories);
 
             var analyzer = new Analyzer(fileArray);
+            Console.ReadKey();
         }
     }
 }
